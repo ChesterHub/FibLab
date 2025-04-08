@@ -1,0 +1,40 @@
+//@version=5
+indicator("RSI & MFI with Divergences", overlay=false)
+
+// Input Parameters
+lengthRSI = input(14, title="RSI Length")
+lengthMFI = input(14, title="MFI Length")
+
+dataRSI = ta.rsi(close, lengthRSI)
+dataMFI = ta.mfi(hlc3, lengthMFI)
+
+// Function to detect divergences
+bullishDivergence(src, ind) =>
+    low1 = ta.lowest(src, 5)
+    low2 = ta.lowest(src[5], 5)
+    indLow1 = ta.lowest(ind, 5)
+    indLow2 = ta.lowest(ind[5], 5)
+    priceHigherLow = low1 > low2
+    indLowerLow = indLow1 < indLow2
+    priceHigherLow and indLowerLow
+
+bearishDivergence(src, ind) =>
+    high1 = ta.highest(src, 5)
+    high2 = ta.highest(src[5], 5)
+    indHigh1 = ta.highest(ind, 5)
+    indHigh2 = ta.highest(ind[5], 5)
+    priceLowerHigh = high1 < high2
+    indHigherHigh = indHigh1 > indHigh2
+    priceLowerHigh and indHigherHigh
+
+// Detect divergences
+bullishRSI = bullishDivergence(low, dataRSI)
+bearishRSI = bearishDivergence(high, dataRSI)
+
+// Plot Indicators
+plot(dataRSI, title="RSI", color=color.purple)
+plot(dataMFI, title="MFI", color=color.yellow)
+
+// Plot Divergences
+plotshape(bullishRSI, location=location.bottom, color=color.green, style=shape.labelup, title="Bullish RSI Divergence")
+plotshape(bearishRSI, location=location.top, color=color.red, style=shape.labeldown, title="Bearish RSI Divergence")
