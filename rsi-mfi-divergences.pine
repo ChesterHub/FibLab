@@ -1,14 +1,15 @@
-//@version=5
-indicator("RSI & MFI with Divergences", overlay=false)
+//@version=6
+indicator("RSI & MFI with Classic and Enhanced Divergences", overlay=false)
 
 // Input Parameters
 lengthRSI = input(14, title="RSI Length")
 lengthMFI = input(14, title="MFI Length")
 
+// Indicator Calculations
 dataRSI = ta.rsi(close, lengthRSI)
 dataMFI = ta.mfi(hlc3, lengthMFI)
 
-// Function to detect divergences
+// Function to detect classic divergences
 bullishDivergence(src, ind) =>
     low1 = ta.lowest(src, 5)
     low2 = ta.lowest(src[5], 5)
@@ -23,18 +24,53 @@ bearishDivergence(src, ind) =>
     high2 = ta.highest(src[5], 5)
     indHigh1 = ta.highest(ind, 5)
     indHigh2 = ta.highest(ind[5], 5)
-    priceLowerHigh = high1 < high2
-    indHigherHigh = indHigh1 > indHigh2
-    priceLowerHigh and indHigherHigh
+    priceHigherHigh = high1 > high2
+    indLowerHigh = indHigh1 < indHigh2
+    priceHigherHigh and indLowerHigh
+
+// Function to detect enhanced divergences (stronger divergences)
+enhancedBullishDivergence(src, ind) =>
+    low1 = ta.lowest(src, 5)
+    low2 = ta.lowest(src[5], 5)
+    indLow1 = ta.lowest(ind, 5)
+    indLow2 = ta.lowest(ind[5], 5)
+    priceHigherLow = low1 > low2
+    indLowerLow = indLow1 < indLow2
+    priceHigherLow and indLowerLow and (low1 - low2 > indLow1 - indLow2)
+
+enhancedBearishDivergence(src, ind) =>
+    high1 = ta.highest(src, 5)
+    high2 = ta.highest(src[5], 5)
+    indHigh1 = ta.highest(ind, 5)
+    indHigh2 = ta.highest(ind[5], 5)
+    priceHigherHigh = high1 > high2
+    indLowerHigh = indHigh1 < indHigh2
+    priceHigherHigh and indLowerHigh and (high1 - high2 > indHigh1 - indHigh2)
 
 // Detect divergences
 bullishRSI = bullishDivergence(low, dataRSI)
 bearishRSI = bearishDivergence(high, dataRSI)
+bullishMFI = bullishDivergence(low, dataMFI)
+bearishMFI = bearishDivergence(high, dataMFI)
+
+// Detect enhanced divergences
+enhancedBullishRSI = enhancedBullishDivergence(low, dataRSI)
+enhancedBearishRSI = enhancedBearishDivergence(high, dataRSI)
+enhancedBullishMFI = enhancedBullishDivergence(low, dataMFI)
+enhancedBearishMFI = enhancedBearishDivergence(high, dataMFI)
 
 // Plot Indicators
 plot(dataRSI, title="RSI", color=color.purple)
 plot(dataMFI, title="MFI", color=color.yellow)
 
-// Plot Divergences
-plotshape(bullishRSI, location=location.bottom, color=color.green, style=shape.labelup, title="Bullish RSI Divergence")
-plotshape(bearishRSI, location=location.top, color=color.red, style=shape.labeldown, title="Bearish RSI Divergence")
+// Plot Classic Divergences
+plotshape(bullishRSI, location=location.bottom, color=color.new(color.green, 50), style=shape.square, title="Bullish RSI Divergence")
+plotshape(bearishRSI, location=location.top, color=color.new(color.maroon, 40), style=shape.square, title="Bearish RSI Divergence")
+plotshape(bullishMFI, location=location.bottom, color=color.new(color.blue, 50), style=shape.cross, title="Bullish MFI Divergence")
+plotshape(bearishMFI, location=location.top, color=color.new(color.purple, 40), style=shape.cross, title="Bearish MFI Divergence")
+
+// Plot Enhanced Divergences
+plotshape(enhancedBullishRSI, location=location.bottom, color=color.new(color.green, 0), style=shape.square, title="Enhanced Bullish RSI Divergence")
+plotshape(enhancedBearishRSI, location=location.top, color=color.new(color.red, 0), style=shape.square, title="Enhanced Bearish RSI Divergence")
+plotshape(enhancedBullishMFI, location=location.bottom, color=color.new(color.blue, 0), style=shape.cross, title="Enhanced Bullish MFI Divergence")
+plotshape(enhancedBearishMFI, location=location.top, color=color.new(color.purple, 0), style=shape.cross, title="Enhanced Bearish MFI Divergence")
