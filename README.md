@@ -1,4 +1,6 @@
-Enjoy these Free trading Scripts!
+Enjoy these Free Trading Indicators!
+
+Each Indicator has a readme that will explain what the indicator is, and how to trade with it.
 
 
 
