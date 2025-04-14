@@ -1,6 +1,8 @@
 Enjoy these Free Trading Indicators!
 
 Each Indicator has a readme that will explain what the indicator is, and how to trade with it.
+Please read through them before using.
+
 
 
 
